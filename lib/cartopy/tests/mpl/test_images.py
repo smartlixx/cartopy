@@ -182,6 +182,15 @@ def test_stock_img():
 @pytest.mark.xfail((5, 0, 0) <= ccrs.PROJ4_VERSION < (5, 1, 0),
                    reason='Proj Orthographic projection is buggy.',
                    strict=True)
+@ImageTesting(['imshow_etopo_ortho'], tolerance=0.7)
+def test_stock_img_etopo():
+    ax = plt.axes(projection=ccrs.Orthographic())
+    ax.stock_img(name='etopo')
+
+
+@pytest.mark.xfail((5, 0, 0) <= ccrs.PROJ4_VERSION < (5, 1, 0),
+                   reason='Proj Orthographic projection is buggy.',
+                   strict=True)
 @ImageTesting(['imshow_natural_earth_ortho'], tolerance=0.7)
 def test_pil_Image():
     img = Image.open(NATURAL_EARTH_IMG)

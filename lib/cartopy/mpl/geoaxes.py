@@ -41,6 +41,7 @@ import cartopy.mpl.feature_artist as feature_artist
 import cartopy.mpl.patch as cpatch
 from cartopy.mpl.slippy_image_artist import SlippyImageArtist
 from cartopy.vector_transform import vector_scalar_to_grid
+from cartopy.io import Downloader
 
 
 assert mpl.__version__ >= '1.5.1', ('Cartopy is only supported with '
@@ -1005,9 +1006,13 @@ class GeoAxes(matplotlib.axes.Axes):
         """
         Add a standard image to the map.
 
-        Currently, the only (and default) option is a downsampled version of
-        the Natural Earth shaded relief raster.
+        Currently, there are 2 options:
 
+        1. 'ne_shaded'(default) a downsampled version of the Natural Earth
+           shaded relief raster.
+        2. 'etopo' a downsampled version of global relief model of Earth's
+           surface that integrates land topography and ocean bathymetry. This
+           option is the same as the etopo from Basemap.
         """
         if name == 'ne_shaded':
             import os
@@ -1015,6 +1020,19 @@ class GeoAxes(matplotlib.axes.Axes):
             fname = os.path.join(config["repo_data_dir"],
                                  'raster', 'natural_earth',
                                  '50-natural-earth-1-downsampled.png')
+
+            return self.imshow(imread(fname), origin='upper',
+                               transform=source_proj,
+                               extent=[-180, 180, -90, 90])
+        elif name == 'etopo':
+            import os
+            source_proj = ccrs.PlateCarree()
+
+            url_template = 'https://www.ngdc.noaa.gov/mgg/image/{name}.jpg'
+            target_path_template = os.path.join(config["data_dir"],
+                                                'raster', '{name}.jpg')
+            d = Downloader(url_template, target_path_template)
+            fname = d.path({'name': 'color_etopo1_ice_low'})
 
             return self.imshow(imread(fname), origin='upper',
                                transform=source_proj,
